@@ -1,22 +1,26 @@
 /**
  * Base Remotion Template for Sandpack
  *
- * Structure (mirrors real Remotion project in VS Code):
- * /App.tsx              ← Sandpack-only: Preview wrapper using @remotion/player
+ * Structure:
+ * /App.tsx              ← Sandpack preview wrapper
+ * /MyComp.tsx           ← Bridge file (re-exports from /src/Composition.tsx)
  * /src/
- *   ├── Composition.tsx ← Main composition (AI edits this)
+ *   ├── Composition.tsx ← THE source of truth - AI edits THIS file
  *   ├── Root.tsx        ← Registers compositions
  *   ├── index.ts        ← Entry point
  *   ├── index.css       ← Styles
- *   └── scenes/         ← AI creates scene files here (empty by default)
+ *   └── scenes/         ← AI creates scene files here
  *
- * NOTE: Agent-skill files are kept in src/lib/agent-skills/ for AI reference
- * but are NOT included in Sandpack.
+ * WHY /MyComp.tsx exists:
+ * Sandpack can't import from ./src/Composition directly (bundler limitation).
+ * So /MyComp.tsx re-exports from /src/Composition.tsx as a workaround.
+ * AI should ONLY edit /src/Composition.tsx - never touch /MyComp.tsx or /App.tsx.
  */
 
 // Import source files
 import {
   appFile,
+  myCompBridge,
   compositionFile,
   rootFile,
   indexEntryFile,
@@ -27,16 +31,14 @@ import {
 export type SandpackFiles = Record<string, string>;
 
 /**
- * Sandpack files - Clean structure matching real Remotion projects
- *
- * App.tsx is the ONLY file outside /src/ - it exists solely for Sandpack preview.
- * Everything else is in /src/ just like a real Remotion project.
+ * Sandpack files
  */
 export const baseRemotionFiles: SandpackFiles = {
-  // Sandpack preview wrapper (imports from /src/Composition.tsx)
+  // Sandpack preview files (don't edit these)
   "/App.tsx": appFile,
+  "/MyComp.tsx": myCompBridge, // Bridge: re-exports from /src/Composition.tsx
 
-  // All Remotion files live in /src/ - just like VS Code
+  // Remotion source files - AI edits these!
   "/src/Composition.tsx": compositionFile,
   "/src/Root.tsx": rootFile,
   "/src/index.ts": indexEntryFile,
